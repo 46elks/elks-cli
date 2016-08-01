@@ -1,0 +1,4 @@
+elkme==0.4.5
+requests==2.10.0
+wheel==0.24.0
+phonenumbers==7.5.1
