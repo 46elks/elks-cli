@@ -13,6 +13,8 @@ years = range(2011, datetime.now().year+1)
 timeformat = lambda t: t.strftime('%Y-%m-%dT%H:%M:%S.%f')
 
 def get_auth(args):
+    """ Get the elkme 46elks authentication details in a requests
+        friendly format """
     if args.configfile:
         conffile = os.path.expanduser(args.configfile)
     else:
@@ -22,9 +24,13 @@ def get_auth(args):
     return (conf.get('username'), conf.get('password'))
 
 def open_elksconn(args):
+    """ Create a connection class to 46elks and return it """
     return elkme.elks.Elks(get_auth(args))
 
 def elksapi(args, endpoint, data = None):
+    """ Access a specific endpoint for the 46elks API in a
+        object format. Supports fetching everything between
+        two dates and any number 1-10 000 elements"""
     elksconn = open_elksconn(args)
     query = {}
     try:
@@ -56,11 +62,15 @@ def elksapi(args, endpoint, data = None):
     return rv
 
 def format_date(args):
+    """ Get month and year information """
     date = datetime.now()
     date = date.replace(hour=0, minute=0, second=0, microsecond=0)
 
     if args.year:
         date = date.replace(year=args.year)
+        if not args.month:
+            end = date.replace(month = 1)
+            start = date.replace(month = 12)
     if args.month:
         if args.month == months[0]:
             date = date.replace(day = 1)
@@ -70,10 +80,10 @@ def format_date(args):
                 date = date.replace(year = date.year - 1)
             date = date.replace(month=new_month, day = 1)
 
-    end = date
-    start = date.replace(month=date.month % 12 + 1) + timedelta(seconds=-1)
-    if date.month == 12:
-        start = start.replace(year=start.year + 1)
+        end = date
+        start = date.replace(month=date.month % 12 + 1) + timedelta(seconds=-1)
+        if date.month == 12:
+            start = start.replace(year=start.year + 1)
     return (timeformat(end), timeformat(start))
 
 def parser_inject_generics(parser):

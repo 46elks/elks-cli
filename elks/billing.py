@@ -40,9 +40,6 @@ def show_billing_rows(rows):
 
 def show_summaries(rows):
     categories = {}
-    sms = 0
-    voice = 0
-    numbers = 0
     total = 0
     items = 0
     start_date = None

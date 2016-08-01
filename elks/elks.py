@@ -7,7 +7,7 @@
 
 import argparse
 import sys
-VERSION = '0.1.0'
+from elks.__init__ import __version__ as VERSION
 
 modules = ['numbers', 'sms', 'subaccounts', 'billing']
 
@@ -35,6 +35,10 @@ def main():
           print('\nThat must be why we\'re not shipping elks yet')
           print('You\'ve reached a feature which isn\'t implemented yet!')
     args = parser.parse_args()
+
+    if args.version:
+      version()
+      exit(0)
 
     if args.subparser_name in modules:
         mod = import_module(args.subparser_name)
