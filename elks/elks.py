@@ -12,8 +12,10 @@ from elks.__init__ import __version__ as VERSION
 modules = sorted([
     'billing',
     'list-sms',
+    'images',
     'new-sms',
     'numbers',
+    'recordings',
     'status',
     'subaccounts'
 ])

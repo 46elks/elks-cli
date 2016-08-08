@@ -1,6 +1,7 @@
 import elkme.config
 import json
 import sys
+import requests
 
 from urllib.parse import urlencode
 from argparse import ArgumentParser
@@ -26,6 +27,17 @@ def get_auth(args):
 def open_elksconn(args):
     """ Create a connection class to 46elks and return it """
     return elkme.elks.Elks(get_auth(args))
+
+def elks_download_media(args, endpoint):
+    elksconn = elkme.elks.Elks()
+    url = elksconn.api_url % endpoint
+
+    res = requests.get(
+        url,
+        auth = get_auth(args)
+    )
+
+    return res.text
 
 def elksapi(args, endpoint, query = {}, data = None):
     """ Access a specific endpoint for the 46elks API in a
@@ -92,3 +104,7 @@ def parser_inject_generics(parser):
         help='Examine objects for a specific month')
     parser.add_argument('--year', choices=years, type=int,
         help='Examine objects for a specific year')
+
+def kv_print(key, value, indentlevel = 1):
+    tabular = '\t' * indentlevel
+    print('%s%-10s %-20s' % (tabular, key, value))
