@@ -27,12 +27,11 @@ def open_elksconn(args):
     """ Create a connection class to 46elks and return it """
     return elkme.elks.Elks(get_auth(args))
 
-def elksapi(args, endpoint, data = None):
+def elksapi(args, endpoint, query = {}, data = None):
     """ Access a specific endpoint for the 46elks API in a
         object format. Supports fetching everything between
         two dates and any number 1-10 000 elements"""
     elksconn = open_elksconn(args)
-    query = {}
     try:
         if args.limit:
             query['limit'] = args.limit

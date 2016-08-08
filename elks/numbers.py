@@ -119,7 +119,7 @@ def numberinfo(args, numbers):
 def parse_arguments(parser):
     parser.add_argument('-a', '--all', action='store_true',
             help='Show all numbers, even deactivated')
-    parser.add_argument('-s', '--short', action='store_true',
+    parser.add_argument('-s', '--summary', action='store_true',
             help='Show only number')
     parser.add_argument('number', nargs='?',
             help='Select a specific number or number id')

@@ -9,11 +9,18 @@ import argparse
 import sys
 from elks.__init__ import __version__ as VERSION
 
-modules = ['numbers', 'sms', 'subaccounts', 'billing']
+modules = sorted([
+    'billing',
+    'list-sms',
+    'new-sms',
+    'numbers',
+    'status',
+    'subaccounts'
+])
 
 def import_module(mod):
-  elks = __import__('elks.%s' % mod)
-  return getattr(elks, mod)
+    elks = __import__('elks.%s' % mod)
+    return getattr(elks, mod)
 
 def main():
     if sys.version_info < (3,):
@@ -29,25 +36,25 @@ def main():
     for module in modules:
         mod = import_module(module)
         try:
-          mod.parse_arguments(subparsers.add_parser(module))
+            mod.parse_arguments(subparsers.add_parser(module))
         except NotImplementedError as e:
-          print(e)
-          print('\nThat must be why we\'re not shipping elks yet')
-          print('You\'ve reached a feature which isn\'t implemented yet!')
+            print(e)
+            print('\nThat must be why we\'re not shipping elks yet')
+            print('You\'ve reached a feature which isn\'t implemented yet!')
     args = parser.parse_args()
 
     if args.version:
-      version()
-      exit(0)
+        version()
+        exit(0)
 
     if args.subparser_name in modules:
         mod = import_module(args.subparser_name)
         try:
-          mod.main(args)
+            mod.main(args)
         except NotImplementedError as e:
-          print(e)
-          print('\nThat must be why we\'re not shipping elks yet')
-          print('You\'ve reached a feature which isn\'t implemented yet!')
+            print(e)
+            print('\nThat must be why we\'re not shipping elks yet')
+            print('You\'ve reached a feature which isn\'t implemented yet!')
 
 def version():
     print('elks command line intermooface v%s' % VERSION)

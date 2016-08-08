@@ -1,6 +1,4 @@
 from elks.helpers import elksapi, parser_inject_generics
-import json
-from datetime import datetime
 
 def main(args):
     response = elksapi(args, 'billing')
