@@ -1,6 +1,8 @@
 import elkme.config
+import elkme.elks
 import json
 import sys
+import os
 import requests
 
 from urllib.parse import urlencode
@@ -16,20 +18,27 @@ timeformat = lambda t: t.strftime('%Y-%m-%dT%H:%M:%S.%f')
 def get_auth(args):
     """ Get the elkme 46elks authentication details in a requests
         friendly format """
+    conf = read_conf(args)
+    return (conf.get('username'), conf.get('password'))
+
+def get_api_url(args):
+    return read_conf(args).get('api_url')
+
+def read_conf(args):
     if args.configfile:
         conffile = os.path.expanduser(args.configfile)
     else:
         conffile = elkme.config.default_config_location()
 
     conf = elkme.config.read_config(conffile)
-    return (conf.get('username'), conf.get('password'))
+    return conf
 
 def open_elksconn(args):
     """ Create a connection class to 46elks and return it """
-    return elkme.elks.Elks(get_auth(args))
+    return elkme.elks.Elks(get_auth(args), api_url = get_api_url(args))
 
 def elks_download_media(args, endpoint):
-    elksconn = elkme.elks.Elks()
+    elksconn = open_elksconn(args)
     url = elksconn.api_url % endpoint
 
     res = requests.get(
@@ -37,7 +46,14 @@ def elks_download_media(args, endpoint):
         auth = get_auth(args)
     )
 
-    return res.text
+    return res.content
+
+def elks_store_media(args, endpoint, destination):
+    print('[Downloading...]')
+    image = elks_download_media(args, endpoint)
+    with open(destination, 'wb') as f:
+        f.write(image)
+    print('[Downloaded]')
 
 def elksapi(args, endpoint, query = {}, data = None):
     """ Access a specific endpoint for the 46elks API in a
@@ -55,7 +71,9 @@ def elksapi(args, endpoint, query = {}, data = None):
         url = '%s?%s' % (endpoint, urlencode(query))
     else:
         url = endpoint
-    rv= elksconn.query_api(endpoint=url, data = data)
+    if data and args.donotpost:
+        raise Exception('Attempted POST request with donotpost flag. Aborting')
+    rv = elksconn.query_api(endpoint=url, data = data)
     rv = json.loads(rv)
     response = rv
     if 'data' in rv:
@@ -73,26 +91,39 @@ def elksapi(args, endpoint, query = {}, data = None):
     return rv
 
 def format_date(args):
-    """ Get month and year information """
+    """ Read the list of arguments and creates the date range for the
+    specified month/year
+    """
     date = datetime.now()
     date = date.replace(hour=0, minute=0, second=0, microsecond=0)
 
     if args.year:
         date = date.replace(year=args.year)
         if not args.month:
-            end = date.replace(month = 1)
-            start = date.replace(month = 12)
+            end = date.replace(month = 1, day = 1)
+            start = date.replace(
+                month = 12,
+                day = 31,
+                hour = 23,
+                minute = 59,
+                second = 59,
+                microsecond = 999999)
     if args.month:
-        if args.month == months[0]:
+        if args.month == months[0]: # 'now'
             date = date.replace(day = 1)
         else:
             new_month = months.index(args.month)
+
+            # If month hasn't started yet this year, assume last year
             if new_month > date.month and not args.year:
                 date = date.replace(year = date.year - 1)
             date = date.replace(month=new_month, day = 1)
 
         end = date
+
+        # Fetch last second of month
         start = date.replace(month=date.month % 12 + 1) + timedelta(seconds=-1)
+        # Iff december, previous line causes year to be last year
         if date.month == 12:
             start = start.replace(year=start.year + 1)
     return (timeformat(end), timeformat(start))
@@ -105,6 +136,3 @@ def parser_inject_generics(parser):
     parser.add_argument('--year', choices=years, type=int,
         help='Examine objects for a specific year')
 
-def kv_print(key, value, indentlevel = 1):
-    tabular = '\t' * indentlevel
-    print('%s%-10s %-20s' % (tabular, key, value))

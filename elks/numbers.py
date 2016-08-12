@@ -98,7 +98,7 @@ def deactivate(args, number):
 def numberinfo(args, numbers):
     for number in numbers:
         print(number['number'])
-        if not args.short:
+        if not args.summary:
             print('\tIdentifier: %s' % number.get('id'))
             print('\tAllocated: %s' % number.get('allocated'))
             if 'deallocated' in number:

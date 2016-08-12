@@ -1,4 +1,5 @@
 from elks.helpers import elksapi, parser_inject_generics
+from elks.formatting import kv_print
 
 descr = """\
 Displays your incoming and outgoing SMS"""
@@ -20,24 +21,18 @@ def parse_arguments(parser):
 
 def pretty_print_sms(sms, summary = False):
     print('%s %s \u2192 %s' % (sms['direction'], sms['from'], sms['to']))
+
     if summary:
         return
-
-    print('\tCreated: %s' % sms['created'])
-    print('\tSMS id: %s' % sms['id'])
-    print('\tDirection: %s' % sms['direction'])
-    print('\tSender: %s' % sms['from'])
-    print('\tRecipient: %s' % sms['to'])
-    if 'status' in sms:
-        print('\tStatus: %s' % sms['status'])
-    if 'delivered' in sms:
-        print('\tDelivered on: %s' % sms['delivered'])
-    if 'cost' in sms:
-        print('\tCost: %s' % sms['cost'])
-    if 'parts' in sms:
-        print('\tParts: %s' % sms['parts'])
-    if 'flashsms' in sms:
-        print('\tFlash SMS: %s' % sms['flashsms'])
-    if 'message' in sms:
-        print('\tMessage: %s' % sms['message'])
+    kv_print('Created:', sms['created'])
+    kv_print('SMS id:', sms['id'])
+    kv_print('Direction:', sms['direction'])
+    kv_print('Sender:', sms['from'])
+    kv_print('Recipient:', sms['to'])
+    kv_print('Status:', sms.get('status'))
+    kv_print('Delivered on:', sms.get('delivered'))
+    kv_print('Cost:', sms.get('cost'))
+    kv_print('Parts:', sms.get('parts'))
+    kv_print('Flash SMS:', sms.get('flashsms'))
+    kv_print('Message:', sms.get('message'))
 

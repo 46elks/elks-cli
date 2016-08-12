@@ -1,45 +1,58 @@
 import math
 import json
 import subprocess
-import os
 from elks.helpers import (
     elksapi,
     parser_inject_generics,
-    kv_print,
-    elks_download_media
+    elks_store_media
 )
 
+from elks.formatting import kv_print, bytes_to_human
+
 descr = """\
-Handle phone call recordings"""
+This module displays information about images stored within 46elks
+and makes it possible to downlaod and manage single images"""
 
 def main(args):
-    raise NotImplementedError('Images subsystem is not yet done')
+    #raise NotImplementedError('Images subsystem is not yet done')
 
     if args.image_id:
-        response = [elksapi(args, 'images/%s' % args.recording_id)]
+        response = [elksapi(args, 'images/%s' % args.image_id)]
         if args.open:
-            pretty_print_recording(response[0], pretty = args.pretty)
-            print('Downloading image')
-            image = elks_download_media(args,
-                'recordings/%s.jpg' % args.image_id)
-            filedest = '/tmp/elks-%s.jpg' % args.image_id
-            with open(filedest, 'w') as f:
-                f.write(wav)
-            print('Downloaded image')
+            image_src = 'images/%s.jpg' % args.image_id
+            filetype = response[0].get('filetype', 'jpg')
+            filedest = '/tmp/elks-%s.%s' % (args.image_id, filetype)
+            elks_store_media(args, image_src, filedest)
 
             print('Opening image')
             # TODO Cross-platform and fix macOS playback
             subprocess.call(['open', filedest])
             print('Opened image')
-            os.remove(filedest)
             return
     else:
         response = elksapi(args, 'images')['data']
         if args.open:
             print('Cannot open multiple images. Please set image_id')
             exit(1)
+    digests = []
     for image in response:
-        print(image)
+        if args.squash:
+            if 'digest' not in image:
+                pass
+            elif image['digest'] in digests:
+                continue
+            else:
+                digests.append(image['digest'])
+        size = image.get('bytes')
+        if args.pretty:
+            size = bytes_to_human(size)
+
+        kv_print('Identifier', image['id'], indentlevel=0)
+        kv_print('Created', image.get('created'))
+        kv_print('MMS', image.get('mmsid'))
+        kv_print('Digest', image.get('digest'))
+        kv_print('Filetype', image.get('filetype'))
+        kv_print('Size', size)
 
 def parse_arguments(parser):
     parser.description = descr
@@ -47,20 +60,12 @@ def parse_arguments(parser):
             help='Print human friendly numbers')
     parser.add_argument('-v', '--verbose', action='store_true',
             help='Print detailed information')
+    parser.add_argument('--squash', action='store_true',
+            help='Display a single image once only despite appearing multiple\
+ times')
     parser.add_argument('image_id', nargs='?',
             help='Select a specific recording')
     parser.add_argument('--open', action='store_true',
-            help='Try to play the selected recording (PRETTY MUCH BROKEN)')
+            help='Try to play the selected recording')
     parser_inject_generics(parser)
-
-def bytes_to_human(size):
-    si_bytes = ('B', 'kB', 'MB', 'GB', 'TB', 'PB', 'ZB', 'YB')
-    si_magnitude = int(math.floor(math.log10(size)) / 3)
-    return '%.2f %s' % (size / pow(10, si_magnitude*3), si_bytes[si_magnitude])
-
-def duration_to_human(length):
-    seconds = length % 60
-    minutes = length / 60
-    hours = minutes / 60
-    return '%dh%dm%ds' % (hours, minutes, seconds)
 

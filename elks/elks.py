@@ -11,14 +11,32 @@ from elks.__init__ import __version__ as VERSION
 
 modules = sorted([
     'billing',
-    'list-sms',
     'images',
+    'list-calls',
+    'list-sms',
     'new-sms',
     'numbers',
     'recordings',
     'status',
     'subaccounts'
 ])
+
+modules_help = """\
+Communication
+    numbers         Manage your 46elks numbers
+    list-sms        Display incoming and outgoing SMS
+    new-sms         Create and send a new outgoing SMS
+    list-calls      
+
+Media
+    recordings      List and listen to recordings
+    images          List and display image attachments
+
+Account management
+    billing         See the billing history of your 46elks account
+    subaccounts     Manage your 46elks subaccounts
+    status          Information about your 46elks account (including balance)
+"""
 
 def import_module(mod):
     elks = __import__('elks.%s' % mod)
@@ -29,12 +47,17 @@ def main():
       print('elks requires Python 3 to run')
       exit(-1)
     global modules
-    parser = argparse.ArgumentParser(prog='elks')
+    parser = argparse.ArgumentParser(prog='elks',
+            description=modules_help,
+            formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--version', action='store_true',
         help='Display elks version')
-    parser.add_argument('-c', '--config', dest='configfile', action='store_true',
+    parser.add_argument('-c', '--config', dest='configfile',
         help='Location of elks/elkme conffile')
-    subparsers = parser.add_subparsers(help='Sub-commands', dest='subparser_name')
+    parser.add_argument('--donotpost', action='store_true',
+        help='Will try to not do anything costly with your account')
+    subparsers = parser.add_subparsers(help='Sub-commands',
+        dest='subparser_name')
     for module in modules:
         mod = import_module(module)
         try:
@@ -63,4 +86,4 @@ def version():
     print('2016 46elks AB <hello@46elks.com>')
 
 if __name__ == '__main__':
-  main()
+    main()
