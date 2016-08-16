@@ -3,7 +3,11 @@ from elks.formatting import kv_print, credits_to_currency
 
 def main(args):
     response = elksapi(args, 'me')
-    print_user(response)
+    if not args.subaccount:
+        print_user(response)
+    else:
+        from elks.elks import main as entrypoint
+        entrypoint(['-a', args.subaccount, 'subaccounts', args.subaccount])
 
 def parse_arguments(parser):
     pass

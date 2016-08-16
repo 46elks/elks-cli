@@ -19,7 +19,14 @@ def get_auth(args):
     """ Get the elkme 46elks authentication details in a requests
         friendly format """
     conf = read_conf(args)
-    return (conf.get('username'), conf.get('password'))
+    auth = (conf.get('username'), conf.get('password'))
+    if args.subaccount:
+        elksconn = elkme.elks.Elks(auth, api_url = get_api_url(args))
+        url = '/Subaccounts/%s' % args.subaccount
+        subaccount = elksconn.query_api(endpoint=url)
+        subaccount = json.loads(subaccount)
+        auth = (args.subaccount, subaccount['secret'])
+    return auth
 
 def get_api_url(args):
     return read_conf(args).get('api_url')

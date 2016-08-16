@@ -46,25 +46,29 @@ def filter_numbers(args):
     numbers = elksapi(args, 'numbers')
     numbers = numbers['data']
     
-
     number_is_active = lambda n: not n.get('active', 'no') == 'no'
 
     if args.number:
         num_filter = lambda n: (n['number'] == args.number or
                 n['id'] == args.number)
         numbers = list(filter(num_filter, numbers))
+        if len(numbers) > 0 and numbers[0]['id'] == args.number:
+            args.all = True # If matched by id, show even when deactivated
 
     if args.country:
         numbers = list(filter(lambda n: (n['country'].lower() ==
             args.country.lower()), numbers))
 
-    if not args.all:
+    if not args.all and not args.inactive:
         numbers = list(filter(number_is_active, numbers))
+
+    if args.inactive:
+        numbers = list(filter(lambda n: not number_is_active(n), numbers))
 
     if not numbers:
         print('No numbers found.')
         if not args.all:
-            print('Try again with `--all` for inactive numbers')
+            print('Try again with `--inactive` to show inactive numbers')
         return
     return numbers
 
@@ -119,6 +123,8 @@ def numberinfo(args, numbers):
 def parse_arguments(parser):
     parser.add_argument('-a', '--all', action='store_true',
             help='Show all numbers, even deactivated')
+    parser.add_argument('--inactive', action='store_true',
+            help='Show deactivated numbers only')
     parser.add_argument('-s', '--summary', action='store_true',
             help='Show only number')
     parser.add_argument('number', nargs='?',
