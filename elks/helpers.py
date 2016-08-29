@@ -29,9 +29,13 @@ def get_auth(args):
     return auth
 
 def get_api_url(args):
+    """ Read the config and look for custom api_url in the config file """
     return read_conf(args).get('api_url')
 
 def read_conf(args):
+    """ Read the config file specified in the arguments or the default
+    config file for the `elkme` application into a dictionary
+    """
     if args.configfile:
         conffile = os.path.expanduser(args.configfile)
     else:

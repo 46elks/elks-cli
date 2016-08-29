@@ -5,8 +5,13 @@
 # Developed in 2016 by Emil Tullstedt <emil@46elks.com>
 # Licensed under the MIT License
 
-import argparse
+# Exiting on Python 2
 import sys
+if sys.version_info < (3,):
+    print('elks requires Python 3 to run')
+    exit(-1)
+
+import argparse
 from elks.__init__ import __version__ as VERSION
 
 modules = sorted([
@@ -43,9 +48,6 @@ def import_module(mod):
     return getattr(elks, mod)
 
 def main(argv):
-    if sys.version_info < (3,):
-      print('elks requires Python 3 to run')
-      exit(-1)
     global modules
     parser = argparse.ArgumentParser(prog='elks',
             description=modules_help,
