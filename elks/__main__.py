@@ -5,14 +5,10 @@
 # Developed in 2016 by Emil Tullstedt <emil@46elks.com>
 # Licensed under the MIT License
 
-# Exiting on Python 2
 import sys
-if sys.version_info < (3,):
-    print('elks requires Python 3 to run')
-    exit(-1)
-
 import argparse
-from elks.__init__ import __version__ as VERSION
+import elks.__init__
+VERSION = elks.__init__.__version__
 
 modules = sorted([
     'billing',

@@ -5,7 +5,10 @@ import sys
 import os
 import requests
 
-from urllib.parse import urlencode
+try: # Py3
+    from urllib.parse import urlencode
+except ImportError: # Py2
+    from urllib import urlencode
 from argparse import ArgumentParser
 from datetime import datetime, timedelta
 

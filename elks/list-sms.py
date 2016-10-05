@@ -1,3 +1,4 @@
+#
 from elks.helpers import elksapi, parser_inject_generics
 from elks.formatting import kv_print
 
@@ -20,7 +21,7 @@ def parse_arguments(parser):
     parser_inject_generics(parser)
 
 def pretty_print_sms(sms, summary = False):
-    print('%s %s \u2192 %s' % (sms['direction'], sms['from'], sms['to']))
+    print(u'%s %s \u2192 %s' % (sms['direction'], sms['from'], sms['to']))
 
     if summary:
         return
