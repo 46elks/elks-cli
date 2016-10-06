@@ -6,6 +6,7 @@
 # Licensed under the MIT License
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
+from builtins import *
 
 import sys
 import argparse
@@ -18,9 +19,10 @@ modules = sorted([
     'billing',
     'images',
     'calls',
-    'sms',
     'numbers',
     'recordings',
+    'setup',
+    'sms',
     'status',
     'subaccounts'
 ])
