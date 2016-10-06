@@ -32,7 +32,7 @@ setup(name='elks',
       keywords="sms 46elks monitoring",
       entry_points={
             'console_scripts': [
-                'elks = elks:run'
+                'elks = elks.__main__:run'
                 ]
           },
       use_2to3 = False,
