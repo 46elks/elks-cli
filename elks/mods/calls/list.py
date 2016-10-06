@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2016 46elks AB <hello@46elks.com>
+# Developed in 2016 by Emil Tullstedt <emil@46elks.com>
+# Licensed under the MIT License
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+
 from elks.helpers import (
     elksapi, 
     parser_inject_generics

@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2016 46elks AB <hello@46elks.com>
+# Developed in 2016 by Emil Tullstedt <emil@46elks.com>
+# Licensed under the MIT License
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+
 import argparse
 from elks.helpers import elksapi
 import json
@@ -18,7 +27,7 @@ def main(args):
 
     if args.sms_url or args.mms_url or args.voice:
         if not args.number:
-            print('You must specify what number you wish to update with -n')
+            print('Must select a specific number to update')
             return
         update_number(args, numbers[0])
     elif args.deactivate and args.number:

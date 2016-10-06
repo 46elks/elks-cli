@@ -9,7 +9,7 @@ from __future__ import (absolute_import, division,
 
 import importlib
 
-submodules = ['list']
+submodules = ['list', 'new']
 import_module = lambda mod: importlib.import_module('.%s' % mod,
     'elks.mods.calls')
 
