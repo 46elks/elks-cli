@@ -1,3 +1,13 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2016 46elks AB <hello@46elks.com>
+# Developed in 2016 by Emil Tullstedt <emil@46elks.com>
+# Licensed under the MIT License
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+
+
 import json
 import subprocess
 from elks.helpers import (
@@ -45,13 +55,9 @@ def main(args):
 
 def parse_arguments(parser):
     parser.description = descr
-    parser.add_argument('-p', '--pretty', action='store_true',
-            help='Print human friendly numbers')
-    parser.add_argument('-v', '--verbose', action='store_true',
-            help='Print detailed information')
     parser.add_argument('recording_id', nargs='?',
             help='Select a specific recording')
-    parser.add_argument('--open', action='store_true',
+    parser.add_argument('--open', '--play', action='store_true',
             help='Try to play the selected recording')
     parser_inject_generics(parser)
 
