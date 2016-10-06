@@ -24,7 +24,6 @@ def parse_arguments(parser):
     parser_inject_generics(parser)
 
 def pretty_print_call(call):
-    print(call.keys())
     print(call['id'])
     kv_print('Created:', call.get('created'))
     kv_print('Duration:', call['duration'])
