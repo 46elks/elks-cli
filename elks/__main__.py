@@ -13,6 +13,7 @@ import argparse
 import importlib
 import elks.mods
 import elks.__init__
+import signal
 VERSION = elks.__init__.__version__
 
 modules = sorted([
@@ -84,6 +85,24 @@ def main(argv):
             print(e)
             print('\nThat must be why we\'re not shipping elks yet')
             print('You\'ve reached a feature which isn\'t implemented yet!')
+        except Exception as e:
+            exctype, value = sys.exc_info()[:2]
+            arguments = ''
+            if len(sys.argv) > 1:
+                arguments = map(lambda x: '"%s"' % x if ' ' in x else x,
+                        sys.argv[1:])
+                arguments = ' '.join(arguments)
+            print('--8>-------------------------------------------------8<--',
+                    file=sys.stderr)
+            print('Called %s with arguments `elks %s`' % (mod.__name__,
+                arguments),
+                    file=sys.stderr)
+            print('%s:' % exctype.__name__, value, file=sys.stderr)
+            print(('==========\nThis is a bug in elks. Please report at '
+                'https://github.com/46elks/elks/issues\n'
+                'or directly to emil@46elks.com'), file=sys.stderr)
+            print('--8>-------------------------------------------------8<--',
+                    file=sys.stderr)
     else:
         parser.print_help()
         sys.exit(2)
@@ -96,5 +115,17 @@ def run():
     argv = sys.argv[1:]
     main(argv)
 
+ctrlc = False
+
+def ctrlc_handler(signal, frame):
+    global ctrlc
+    if ctrlc:
+        print('')
+        sys.exit(0)
+    else:
+        ctrlc = True
+        print('\nctrl+c detected, press again to force quit', file=sys.stderr)
+
 if __name__ == '__main__':
+    signal.signal(signal.SIGINT, ctrlc_handler)
     run()

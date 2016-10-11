@@ -2,6 +2,7 @@ from elks.helpers import elksapi, parser_inject_generics
 
 def main(args):
     response = elksapi(args, 'billing')
+    user = elksapi(args, 'Me')
     billing_data = response['data']
 
     if args.id:
@@ -9,9 +10,9 @@ def main(args):
             billing_data)
   
     if args.sum:
-        show_summaries(billing_data)
+        show_summaries(billing_data, user)
     else:
-        show_billing_rows(billing_data)
+        show_billing_rows(billing_data, user)
 
 def parse_arguments(parser):
     parser.add_argument('id', nargs='?',
@@ -21,22 +22,23 @@ def parse_arguments(parser):
     parser_inject_generics(parser)
     
 
-def show_billing_rows(rows):
+def show_billing_rows(rows, user):
     for row in rows:
         print(row['id'])
         print('\tCreated: %s' % row['created'])
         print('\tReference: %s' % row['reference'])
 
         cost = row.get('cost')
+        currency = user['currency']
         if cost:
-            print('\tCost: %s' % format_sum(row['currency'], cost))
+            print('\tCost: %s' % format_sum(currency, cost))
         else:
             print('\tCost: None')
         
         if 'subaccount' in row:
             print('\tSubaccount: %s' % row['subaccount'])
 
-def show_summaries(rows):
+def show_summaries(rows, user):
     categories = {}
     total = 0
     items = 0
@@ -56,7 +58,7 @@ def show_summaries(rows):
         else:
             end_date = row['created']
         if not currency:
-            currency = row['currency']
+            currency = user['currency']
         ref = row['reference']
         cat = ref.split('/')[1]
         if not cat in categories:

@@ -101,16 +101,16 @@ def elksapi(args, endpoint, query = {}, data = None):
     response = rv
     if 'data' in rv:
         rv['data'] = reversed(rv['data'])
-    if not 'limit' in query and 'end' in query:
-        rv['data'] = list(rv['data'])
-        while ('next' in response and
-               response['next'] < query.get('start',
-                   timeformat(datetime.now()))):
-            query['start'] = response['next']
-            url = '%s?%s' % (endpoint, urlencode(query))
-            response = json.loads(elksconn.query_api(endpoint=url))
-            for item in response['data']:
-                rv['data'].insert(0, item)
+        if not 'limit' in query and 'end' in query:
+            rv['data'] = list(rv['data'])
+            while ('next' in response and
+                response['next'] < query.get('start',
+                    timeformat(datetime.now()))):
+                query['start'] = response['next']
+                url = '%s?%s' % (endpoint, urlencode(query))
+                response = json.loads(elksconn.query_api(endpoint=url))
+                for item in response['data']:
+                    rv['data'].insert(0, item)
     return rv
 
 def format_date(args):
