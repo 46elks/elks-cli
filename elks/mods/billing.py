@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2016 46elks AB <hello@46elks.com>
+# Developed in 2016 by Emil Tullstedt <emil@46elks.com>
+# Licensed under the MIT License
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+from builtins import *
 from elks.helpers import elksapi, parser_inject_generics
 
 def main(args):
@@ -66,7 +75,7 @@ def show_summaries(rows, user):
         else:
             categories[cat] += row['cost']
 
-    percentage = lambda part: part/total*100.
+    percentage = lambda part: float(part)/float(total)*100.
 
     if not (start_date or end_date):
         print('No billing information found')
@@ -76,10 +85,20 @@ def show_summaries(rows, user):
         start_date[:10],
         end_date[:10]))
 
+    category_list = []
     for category in categories:
-        print('%-10s%s (%6.2f%%)' % ('%s' % category,
-            format_sum(currency, categories[category]),
-            percentage(categories[category])))
+        category_sum = format_sum(currency, categories[category])
+        part_of_total = percentage(categories[category])
+        print_category_row = '%-10s%s (%6.2f%%)' % ('%s' % category,
+            category_sum,
+            part_of_total
+        )
+
+        category_list.append((categories[category], print_category_row))
+
+    category_list = sorted(category_list, key=lambda cat: -cat[0])
+    for category in category_list:
+        print(category[1])
 
     print('%-10s%s' % ('Total', format_sum(currency, total)))
 
