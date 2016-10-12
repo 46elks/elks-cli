@@ -7,8 +7,11 @@ def main(args):
     if not args.subaccount:
         print_user(response)
     else:
-        from elks.elks import main as entrypoint
-        entrypoint(['-a', args.subaccount, 'subaccounts', args.subaccount])
+        from elks.__main__ import main as entrypoint
+        command = ['-a', args.subaccount, 'subaccounts', args.subaccount]
+        if args.pretty:
+            command.insert(0, '-p')
+        entrypoint(command)
 
 def parse_arguments(parser):
     pass

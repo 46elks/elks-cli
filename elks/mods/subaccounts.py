@@ -1,4 +1,14 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2016 46elks AB <hello@46elks.com>
+# Developed in 2016 by Emil Tullstedt <emil@46elks.com>
+# Licensed under the MIT License
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+
 from elks.helpers import elksapi
+from elks.formatting import kv_print, credits_to_currency
 import json
 
 def main(args):
@@ -17,11 +27,13 @@ def create_subaccount(args):
 
 def list_subaccounts(args):
     subaccounts = elksapi(args, endpoint='subaccounts')['data']
+    me = elksapi(args, endpoint='me')
+    currency = me.get('currency')
 
     if args.id:
         subaccounts = list(filter(lambda s: (s['id'] == args.id or
             s['name'] == args.id), subaccounts))
-    
+
     if not subaccounts:
         print('Did not find any matching subaccounts')
         return
@@ -30,12 +42,21 @@ def list_subaccounts(args):
         if args.short:
             print('%s %s' % (account.get('name', 'Unnamed'), account['id']))
         else:
+            usagelimit = account.get('usagelimit')
+            if usagelimit and args.pretty:
+                usagelimit = credits_to_currency(usagelimit, currency)
+            balanceused = account.get('balanceused', 0)
+            if args.pretty:
+                balanceused = credits_to_currency(balanceused, currency)
+
             print(account.get('name', 'Unnamed'))
-            print('\tIdentifier: %s' % account['id'])
-            print('\tSecret: %s' % account.get('secret'))
-            print('\tCreated: %s' % account.get('created', 'Unknown'))
-            print('\tUsagelimit: %s' % account.get('usagelimit'))
-            print('\tBalance Used: %s' % account.get('balanceused'))
+            kv_print('Identifier', account['id'])
+            kv_print('Secret', account.get('secret'))
+            kv_print('Created', account.get('created', 'Unknown'))
+            kv_print('Currency', account.get('currency'))
+            kv_print('Usagelimit', usagelimit)
+            kv_print('Balance Used', balanceused,
+                show_empty=True)
 
 def change_usagelimit(args):
     if not args.id:

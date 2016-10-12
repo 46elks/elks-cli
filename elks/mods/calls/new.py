@@ -9,6 +9,8 @@ from __future__ import (absolute_import, division,
 
 from elks.helpers import elksapi, read_conf
 import json
+import sys
+import re
 
 def parse_arguments(parser):
     parser.description = ('Initialize new outgoing call')
@@ -27,17 +29,18 @@ def main(args):
     config = read_conf(args)
 
     payload = {
-        'to': args.to or config['to'],
-        'from': args.sender or config['callfrom'] or config['from'],
+        'to': args.to or config.get('to'),
+        'from': args.sender or config.get('callfrom') or config.get('from'),
         'voice_start': parse_voice(args.data)
     }
-    try:
-        response = elksapi(args,
-            endpoint='calls',
-            data=payload)
-    except:
-        print('Something went wrong')
+
+    if re.match('[A-Za-z]', payload['from']):
+        print('Cannot call from an alphanumeric sender', file=sys.stderr)
         return
+
+    response = elksapi(args,
+        endpoint='calls',
+        data=payload)
     print('Called %s executing %s from %s' % (
           payload['to'],
           payload['voice_start'],
