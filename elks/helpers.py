@@ -159,3 +159,14 @@ def parser_inject_generics(parser):
     parser.add_argument('--year', choices=years, type=int,
         help='Examine objects for a specific year')
 
+def input_yes_no(question, default=False):
+    hint = '[Y/n]' if default else '[y/N]'
+    answer = input('{} {} '.format(question, hint))
+    answer = answer.strip()
+    if answer == '':
+        return default
+    else:
+        if answer.lower().startswith('y'):
+            return True
+        else:
+            return False

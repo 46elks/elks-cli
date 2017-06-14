@@ -9,7 +9,7 @@ from __future__ import (absolute_import, division,
 from builtins import *
 
 import argparse
-from elks.helpers import elksapi
+from elks.helpers import elksapi, input_yes_no
 import json
 import readline
 from time import sleep
@@ -32,12 +32,17 @@ def main(args):
             return
         update_number(args, numbers[0])
     elif args.deactivate and args.number:
-        deactivate(args, numbers[0])
+        for number in numbers:
+            deactivate(args, number)
+    elif args.deactivate:
+        print('Select a specific number to deactivate')
+        return
     else:
         numberinfo(args, numbers)
 
 def allocate_numbers(args):
     request = {}
+    capabilities = []
 
     if args.number:
         request['number'] = args.number
@@ -49,18 +54,33 @@ def allocate_numbers(args):
         print('where you wish to allocate your number.')
         request['country'] = input('Country (2 letter CC) > ')
 
-    elksconn = elksapi(args, 'numbers', data = request)
-    print(json_response)
+    opt_sms = input_yes_no('Do you need SMS support?', True)
+    opt_mms = input_yes_no('Do you need MMS support?', False)
+    opt_voice = input_yes_no('Do you need voice support?', True)
+
+    if opt_sms:
+        capabilities.append('sms')
+    if opt_mms:
+        capabilities.append('mms')
+    if opt_voice:
+        capabilities.append('voice')
+
+    request['capabilities'] = ','.join(capabilities)
+
+    json_response = elksapi(args, 'numbers', data = request)
+    numberinfo(args, [json_response])
 
 def filter_numbers(args):
     numbers = elksapi(args, 'numbers')
     numbers = numbers['data']
-    
+
     number_is_active = lambda n: not n.get('active', 'no') == 'no'
 
     if args.number:
-        num_filter = lambda n: (n['number'] == args.number or
-                n['id'] == args.number)
+        num = args.number
+        if ',' in args.number:
+            num = args.number.split(',')
+        num_filter = lambda n: (n['number'] in num or n['id'] in num)
         numbers = list(filter(num_filter, numbers))
         if len(numbers) > 0 and numbers[0]['id'] == args.number:
             args.all = True # If matched by id, show even when deactivated
