@@ -7,7 +7,7 @@
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 
-from elks.helpers import elksapi, parser_inject_generics
+from elks.helpers import elksapi, parser_inject_generics, pretty_time
 from elks.formatting import kv_print
 
 descr = """\
@@ -33,13 +33,16 @@ def pretty_print_sms(sms, summary = False):
 
     if summary:
         return
-    kv_print('Created:', sms['created'])
+    kv_print('Created:', pretty_time(sms['created']))
     kv_print('SMS id:', sms['id'])
     kv_print('Direction:', sms['direction'])
     kv_print('Sender:', sms['from'])
     kv_print('Recipient:', sms['to'])
     kv_print('Status:', sms.get('status'))
-    kv_print('Delivered on:', sms.get('delivered'))
+    if 'delivered' in sms:
+        kv_print('Delivered on:', sms.get('delivered'))
+    else:
+        kv_print('Delivered on:', 'Unknown/Not yet delivered')
     kv_print('Cost:', sms.get('cost'))
     kv_print('Parts:', sms.get('parts'))
     kv_print('Flash SMS:', sms.get('flashsms'))

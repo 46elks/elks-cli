@@ -29,7 +29,7 @@ def main(args):
 
 def parse_arguments(parser):
     parser.add_argument('id', nargs='?',
-        help='Examine a specific billing row')
+        help='Examine a specific transaction row')
     parser.add_argument('--sum', action='store_true',
         help='Get an overview of where your credits are used')
     parser_inject_generics(parser)
