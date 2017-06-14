@@ -13,7 +13,8 @@ import subprocess
 from elks.helpers import (
     elksapi,
     parser_inject_generics,
-    elks_store_media
+    elks_store_media,
+    pretty_time
 )
 
 from elks.formatting import (
@@ -73,7 +74,7 @@ def pretty_print_recording(recording, pretty = False):
         duration = recording.get('duration', 0)
 
     print('%s %s %s %s' % (
-        recording['created'],
+        pretty_time(recording['created']),
         recording['id'],
         duration,
         size
