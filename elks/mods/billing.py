@@ -15,9 +15,9 @@ def main(args):
     billing_data = response['data']
 
     if args.id:
-        billing_data = filter(lambda record: record['id'] == args.id,
+        billing_data = filter(lambda record: record['id'].startswith(args.id),
             billing_data)
-  
+
     if args.sum:
         show_summaries(billing_data, user)
     else:

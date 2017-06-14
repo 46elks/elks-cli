@@ -25,7 +25,8 @@ modules = sorted([
     'setup',
     'sms',
     'status',
-    'subaccounts'
+    'subaccounts',
+    'transactions'
 ])
 
 modules_help = """\
@@ -42,6 +43,7 @@ Account management
     billing         See the billing history of your 46elks account
     subaccounts     Manage your 46elks subaccounts
     status          Information about your 46elks account (including balance)
+    transactions    See your transaction (payment) history
 """
 
 def main(argv):
