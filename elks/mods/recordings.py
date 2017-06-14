@@ -29,16 +29,17 @@ Handle phone call recordings"""
 def main(args):
     if args.recording_id:
         response = [elksapi(args, 'recordings/%s' % args.recording_id)]
-        if args.open:
+        if args.open or args.download:
             wav_src = 'recordings/%s.wav' % args.recording_id
             filedest = '/tmp/elks-%s.wav' % args.recording_id
             pretty_print_recording(response[0], pretty = args.pretty)
             elks_store_media(args, wav_src, filedest)
 
-            print('[Playing...]')
-            # TODO Cross-platform and fix macOS playback
-            subprocess.call(['afplay', filedest])
-            print('[Played]')
+            if args.open:
+                print('[Playing...]')
+                # TODO Cross-platform and fix macOS playback
+                subprocess.call(['afplay', filedest])
+                print('[Played]')
             print('Recording stored in %s' % filedest)
             return
     else:
@@ -60,6 +61,8 @@ def parse_arguments(parser):
             help='Select a specific recording')
     parser.add_argument('--open', '--play', action='store_true',
             help='Try to play the selected recording')
+    parser.add_argument('--download', action='store_true',
+            help='Download the selected recording')
     parser_inject_generics(parser)
 
 def pretty_print_recording(recording, pretty = False):
