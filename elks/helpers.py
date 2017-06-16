@@ -26,9 +26,14 @@ months = ['now', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep',
 years = range(2011, datetime.now().year+1)
 
 _TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
+_TIME_FORMAT_SEC = '%Y-%m-%dT%H:%M:%S'
+_TIME_FORMAT_MIN = '%Y-%m-%dT%H:%M:%S'
 timeformat = lambda t: t.strftime(_TIME_FORMAT)
-pretty_time = lambda s:\
-    datetime.strptime(s, _TIME_FORMAT).strftime('%Y-%m-%d %H:%M')
+def pretty_time(s):
+    try:
+        return datetime.strptime(s, _TIME_FORMAT).strftime(_TIME_FORMAT_MIN)
+    except ValueError:
+        return datetime.strptime(s, _TIME_FORMAT_SEC).strftime(_TIME_FORMAT_MIN)
 
 def get_auth(args):
     """ Get the elkme 46elks authentication details in a requests
