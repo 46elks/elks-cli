@@ -20,6 +20,17 @@ def main(args):
     else:
         list_subaccounts(args)
 
+def get_subaccounts(args):
+    subaccounts = elksapi(args, endpoint='subaccounts')['data']
+
+    if not subaccounts:
+        raise Exception('Did not find any matching subaccounts')
+
+    if args.id:
+        subaccounts = filter(lambda s: (s['id'] == args.id or
+            s['name'] == args.id), subaccounts)
+    return subaccounts
+
 def create_subaccount(args):
     details = elksapi(args,
         endpoint='subaccounts',
@@ -27,18 +38,15 @@ def create_subaccount(args):
     print('Created subaccount %s with id %s' % (details['name'], details['id']))
 
 def list_subaccounts(args, hide_secret=False):
-    subaccounts = elksapi(args, endpoint='subaccounts')['data']
+    try:
+        subaccounts = get_subaccounts(args)
+    except Exception as e:
+        print(e)
+        return
     me = elksapi(args, endpoint='me')
     currency = me.get('currency')
 
-    if not subaccounts:
-        print('Did not find any matching subaccounts')
-        return
-
-    if args.id:
-        subaccounts = filter(lambda s: (s['id'] == args.id or
-            s['name'] == args.id), subaccounts)
-    elif args.all:
+    if args.all:
         pass
     elif args.show_inactive:
         subaccounts = filter(lambda s: (s.get('active') == 'no'), subaccounts)
@@ -73,6 +81,18 @@ def update_subaccount(args):
     if not args.id:
         print('Updating requires you to specify a subaccount by id')
 
+    try:
+        accs = get_subaccounts(args)
+    except Exception as e:
+        print(e)
+        return
+    if len(accs) < 1:
+        print('Multiple subaccounts matched :(')
+        return
+    args.id = accs[0].get('id')
+    curr_ul = accs[0].get('usagelimit')
+    balance_used = accs[0].get('balanceused')
+
     query = {}
     if args.active:
         query['active'] = args.active
@@ -80,12 +100,7 @@ def update_subaccount(args):
     if args.usagelimit != None:
         usagelimit = args.usagelimit.strip().lower()
         if re.match(r'[+-:.]?\d+|none', usagelimit):
-            if usagelimit[0] in '+.-:':
-                sacc = elksapi(args, endpoint='subaccounts/{}'.format(
-                            args.id
-                        ))
-                curr_ul = sacc.get('usagelimit')
-                balance_used = sacc.get('balanceused')
+            if usagelimit[0] in '+-:.':
                 if curr_ul and usagelimit[0] == '+':
                     usagelimit = str(curr_ul + int(usagelimit[1:]))
                 elif curr_ul and usagelimit[0] == '-':
@@ -95,6 +110,8 @@ def update_subaccount(args):
                     usagelimit = str(max(new_ul, curr_ul))
                 elif balance_used and usagelimit[0] == ':':
                     usagelimit = str(balance_used + int(usagelimit[1:]))
+                elif usagelimit[0] in ':.':
+                    usagelimit = usagelimit[1:]
             query['usagelimit'] = usagelimit
         else:
             print('Usagelimit must be an integer or literal \'none\'')

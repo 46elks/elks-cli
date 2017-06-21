@@ -111,7 +111,7 @@ def main(argv):
 
 def version():
     print('elks command line intermooface v%s' % VERSION)
-    print('2016 46elks AB <hello@46elks.com>')
+    print('2016-2017 46elks AB <hello@46elks.com>')
 
 def run():
     argv = sys.argv[1:]
