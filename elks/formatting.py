@@ -26,11 +26,13 @@ def duration_to_human(length):
         return '%ds' % (seconds)
 
 def credits_to_currency(credits, currency):
+    if value == 0:
+        return '{} 0.0000'.format(currency)
     value = credits / 10000.
     return '%s %.4f' % (currency, value)
 
 def kv_print(key, value, indentlevel = 1, show_empty = False):
-    if not show_empty and not value:
+    if not show_empty and value == None:
         return
     tabular = '\t' * indentlevel
     print('%s%-15s %-20s' % (tabular, key, value))
