@@ -13,7 +13,7 @@ import json
 import re
 
 def main(args):
-    if args.usagelimit or args.active:
+    if args.usagelimit or args.active or args.secret:
         update_subaccount(args)
     elif args.new:
         create_subaccount(args)
@@ -76,22 +76,32 @@ def update_subaccount(args):
     query = {}
     if args.active:
         query['active'] = args.active
-    elif args.usagelimit != None:
+    
+    if args.usagelimit != None:
         usagelimit = args.usagelimit.strip().lower()
-        if re.match(r'[+-]?\d+|none', usagelimit):
-            if usagelimit[0] in ['+', '-']:
-                curr_ul = elksapi(args,
-                        endpoint='subaccounts/{}'.format(
+        if re.match(r'[+-:.]?\d+|none', usagelimit):
+            if usagelimit[0] in '+.-:':
+                sacc = elksapi(args, endpoint='subaccounts/{}'.format(
                             args.id
-                        )).get('usagelimit')
+                        ))
+                curr_ul = sacc.get('usagelimit')
+                balance_used = sacc.get('balanceused')
                 if curr_ul and usagelimit[0] == '+':
                     usagelimit = str(curr_ul + int(usagelimit[1:]))
                 elif curr_ul and usagelimit[0] == '-':
                     usagelimit = str(curr_ul - int(usagelimit[1:]))
+                elif balance_used and usagelimit[0] == '.':
+                    new_ul = balance_used + int(usagelimit[1:])
+                    usagelimit = str(max(new_ul, curr_ul))
+                elif balance_used and usagelimit[0] == ':':
+                    usagelimit = str(balance_used + int(usagelimit[1:]))
             query['usagelimit'] = usagelimit
         else:
             print('Usagelimit must be an integer or literal \'none\'')
             return
+    
+    if args.secret:
+        query['secret'] = args.secret
 
     if not query:
         print('Updated nothing')
@@ -119,5 +129,14 @@ def parse_arguments(parser):
             help='Show all subaccounts, including deactivated')
     parser.add_argument('--show-inactive', action='store_true',
             help='Show only inactive accounts')
-    parser.add_argument('--usagelimit', type=str,
-            help='Set the new usagelimit of the subaccount (requires id)')
+    parser.add_argument('--usagelimit', metavar='LIMIT', type=str,
+            help="""Set the new usagelimit of the subaccount (requires id).
+            Set to "none" to unset the usage limit. You may add to the current
+            limit by writing '+<sum>', subtract by writing '-<sum>'
+            where <sum> is a positive integer. You may also use ':<sum>' to
+            set the usagelimit to (balance used + <sum>) or '.<sum>' to set the
+            usagelimit to the greatest of (balance used + <sum>) and current
+            usagelimit
+            """)
+    parser.add_argument('--secret',
+            help='Set new secret')
